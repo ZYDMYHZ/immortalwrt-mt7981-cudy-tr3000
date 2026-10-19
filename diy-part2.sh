@@ -28,3 +28,9 @@ sed -i -e '/^IMG_PREFIX:=/i BUILD_DATE := $(shell date +%Y%m%d)' \
 
 # set ubi to 122M
 # sed -i 's/reg = <0x5c0000 0x7000000>;/reg = <0x5c0000 0x7a40000>;/' target/linux/mediatek/dts/mt7981b-cudy-tr3000-v1-ubootmod.dts
+
+# ---- 内置 Nikki 默认分流 profile 与规则集（离线可用）----
+if [ -d "$GITHUB_WORKSPACE/files" ]; then
+  mkdir -p package/base-files/files
+  cp -a "$GITHUB_WORKSPACE/files/." package/base-files/files/
+fi

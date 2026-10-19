@@ -1,0 +1,398 @@
+# ============================================================================
+# mihomo (Clash.Meta) 推荐配置模板
+# ----------------------------------------------------------------------------
+# 底座：MetaCubeX/meta-rules-dat (.mrs) + Loyalsoldier/clash-rules (语义分区)
+#       + Aethersailor/Custom_OpenClash_Rules (DNS/防泄露/覆写思想)
+# 校验：mihomo Meta v1.19.30 通过 `mihomo -t`
+# 注意：下方 `proxies` / `proxy-providers` 为【占位符】，使用前必须替换为
+#       你自己的节点或订阅，否则分组为空。
+# ============================================================================
+
+# ---- 基础 ----
+mixed-port: 7890
+socks-port: 7891
+port: 7892
+allow-lan: true
+bind-address: '*'
+mode: rule
+log-level: warning
+ipv6: true
+unified-delay: true
+tcp-concurrent: true
+find-process-mode: strict
+
+# ---- 外部控制（面板）----
+external-controller: 0.0.0.0:9090
+secret: "REPLACE_WITH_YOUR_OWN_SECRET"
+external-ui: ./ui
+external-ui-url: "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# ---- 内核认证（可选）----
+# authentication:
+#   - "user:pass"
+
+# ---- 嗅探器 ----
+sniffer:
+  enable: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - 'Mijia Cloud'
+    - '+.push.apple.com'
+
+# ---- TUN（Linux 需 root/CAP_NET_ADMIN；容器里按需开启）----
+tun:
+  enable: false
+  stack: mixed
+  dns-hijack:
+    - 'any:53'
+    - 'tcp://any:53'
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+
+# ---- DNS（防污染 + 防泄露，参考 Aethersailor 方案）----
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  prefer-h3: false
+  use-hosts: true
+  use-system-hosts: true
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*.lan'
+    - '*.local'
+    - '+.msftconnecttest.com'
+    - '+.msftncsi.com'
+    - 'localhost.ptlogin2.qq.com'
+    - '+.stun.*.*'
+    - 'time.*.com'
+    - 'ntp.*.com'
+    - '+.xn--ngstr-lra8j.com'
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - 180.184.1.1
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - 180.184.1.1
+  proxy-server-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver-policy:
+    'rule-set:cn_domain,private_domain': ['223.5.5.5', '119.29.29.29']
+    'rule-set:global_domain': ['1.1.1.1', '8.8.8.8']
+
+# ============================================================================
+# 节点区（占位符）
+# ----------------------------------------------------------------------------
+# 固件内置的是【占位节点】，不可用；刷机后请在 LuCI → Nikki 中：
+#   1) 用「订阅」方式导入你的机场/自建订阅，或
+#   2) 直接编辑 /etc/nikki/profiles/nikki-default.yaml 的 proxies，
+#      把 server/port/uuid 换成自己的，然后 nikki restart
+# ============================================================================
+proxies:
+- name: "🛡️ 节点占位"
+  type: vless
+  server: 192.0.2.1
+  port: 443
+  uuid: "00000000-0000-4000-8000-000000000000"
+  network: tcp
+  udp: true
+  tls: true
+  flow: xtls-rprx-vision
+  servername: addons.mozilla.org
+  client-fingerprint: chrome
+  reality-opts:
+    public-key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    short-id: "0000000000000000"
+
+proxy-groups:
+- name: 🚀 节点选择
+  type: select
+  proxies:
+  - 🛡️ 节点占位
+  - ♻️ 自动选择
+  - DIRECT
+- name: ♻️ 自动选择
+  type: select
+  proxies:
+  - 🛡️ 节点占位
+  - DIRECT
+- name: 🌍 国外媒体
+  type: select
+  proxies:
+  - 🚀 节点选择
+  - ♻️ 自动选择
+  - DIRECT
+- name: 📲 电报消息
+  type: select
+  proxies:
+  - 🚀 节点选择
+  - ♻️ 自动选择
+  - DIRECT
+- name: 🤖 AI 服务
+  type: select
+  proxies:
+  - 🚀 节点选择
+  - ♻️ 自动选择
+  - DIRECT
+- name: 📹 油管视频
+  type: select
+  proxies:
+  - 🚀 节点选择
+  - ♻️ 自动选择
+  - DIRECT
+- name: 🎥 奈飞视频
+  type: select
+  proxies:
+  - 🚀 节点选择
+  - ♻️ 自动选择
+  - DIRECT
+- name: 🎧 网易云音乐
+  type: select
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+- name: 🍎 苹果服务
+  type: select
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - ♻️ 自动选择
+- name: Ⓜ️ 微软服务
+  type: select
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - ♻️ 自动选择
+- name: 🎮 游戏平台
+  type: select
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - ♻️ 自动选择
+- name: 🛑 广告拦截
+  type: select
+  proxies:
+  - REJECT
+  - DIRECT
+- name: 🐟 漏网之鱼
+  type: select
+  proxies:
+  - 🚀 节点选择
+  - ♻️ 自动选择
+  - DIRECT
+
+
+rules:
+  # —— 局域网 / 隐私 ——
+  - RULE-SET,private_domain,DIRECT
+  - RULE-SET,private_ip,DIRECT,no-resolve
+  # —— 广告拦截 ——
+  - RULE-SET,reject,🛑 广告拦截
+  - RULE-SET,ads_domain,🛑 广告拦截
+  # —— Google Play 下载分片CDN ångströ.com(xn--ngstr-lra8j.com)：国内GGC边缘(:8080/:80)常挂起致下载卡死；改走节点由境外解析到可用GGC ——
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,🚀 节点选择
+  # —— Google Play 下载 CDN 强制走代理（必须置于 direct 规则集之前，否则被误判直连导致下载失败）——
+  - DOMAIN,dl.google.com,🚀 节点选择
+  - DOMAIN-SUFFIX,gvt1.com,🚀 节点选择
+  - DOMAIN-SUFFIX,gvt2.com,🚀 节点选择
+  - DOMAIN-SUFFIX,gvt3.com,🚀 节点选择
+  - DOMAIN-SUFFIX,gstatic.com,🚀 节点选择
+  - DOMAIN-SUFFIX,googleapis.com,🚀 节点选择
+  - DOMAIN-SUFFIX,googleusercontent.com,🚀 节点选择
+  # —— 国内直连（域名类先于 IP 类）——
+  - RULE-SET,cn_domain,DIRECT
+  - RULE-SET,direct,DIRECT
+  - RULE-SET,cncidr,DIRECT,no-resolve
+  # —— 指定直连（Bing 搜索/入口；CLI proxy 等无关流量不受影响）——
+  - DOMAIN-SUFFIX,bing.com,DIRECT
+  # —— 需要代理的经典列表 ——
+  - RULE-SET,proxy,🚀 节点选择
+  - RULE-SET,gfw_domain,🚀 节点选择
+  # —— 业务细分 ——
+  - RULE-SET,ai_domain,🤖 AI 服务
+  - RULE-SET,google_domain,🚀 节点选择
+  - RULE-SET,github_domain,🚀 节点选择
+  - RULE-SET,telegram_domain,📲 电报消息
+  - RULE-SET,telegram_ip,📲 电报消息,no-resolve
+  - RULE-SET,youtube_domain,📹 油管视频
+  - RULE-SET,netflix_domain,🎥 奈飞视频
+  - RULE-SET,disney_domain,🎥 奈飞视频
+  - RULE-SET,hbo_domain,🎥 奈飞视频
+  - RULE-SET,primevideo_domain,🎥 奈飞视频
+  - RULE-SET,entertainment_domain,🌍 国外媒体
+  - RULE-SET,spotify_domain,🌍 国外媒体
+  - RULE-SET,apple_domain,🍎 苹果服务
+  - RULE-SET,microsoft_domain,Ⓜ️ 微软服务
+  - RULE-SET,steam_domain,🎮 游戏平台
+  - RULE-SET,game_download_domain,DIRECT
+  - RULE-SET,netease_domain,🎧 网易云音乐
+  # —— 常见软件直连 ——
+  - RULE-SET,applications,DIRECT
+  # —— 兜底 ——
+  - MATCH,🐟 漏网之鱼
+
+rule-providers:
+  # —— 本地内置规则（离线可用，type: file）——
+  private_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/geosite_private.mrs
+  private_ip:
+    type: file
+    behavior: ipcidr
+    format: mrs
+    path: /etc/nikki/providers/geoip_private.mrs
+  direct:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/direct.mrs
+  proxy:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/proxy.mrs
+  reject:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/reject.mrs
+  applications:
+    type: file
+    behavior: classical
+    path: /etc/nikki/providers/applications.yaml
+  cncidr:
+    type: file
+    behavior: ipcidr
+    format: mrs
+    path: /etc/nikki/providers/cncidr.mrs
+  cn_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/cn_domain.mrs
+  global_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/global_domain.mrs
+  ads_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/ads_domain.mrs
+  gfw_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/gfw_domain.mrs
+  google_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/google_domain.mrs
+  github_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/github_domain.mrs
+  telegram_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/telegram_domain.mrs
+  telegram_ip:
+    type: file
+    behavior: ipcidr
+    format: mrs
+    path: /etc/nikki/providers/telegram_ip.mrs
+  youtube_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/youtube_domain.mrs
+  netflix_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/netflix_domain.mrs
+  disney_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/disney_domain.mrs
+  hbo_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/hbo_domain.mrs
+  primevideo_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/primevideo_domain.mrs
+  entertainment_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/entertainment_domain.mrs
+  spotify_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/spotify_domain.mrs
+  apple_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/apple_domain.mrs
+  microsoft_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/microsoft_domain.mrs
+  steam_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/steam_domain.mrs
+  game_download_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/game_download_domain.mrs
+  netease_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/netease_domain.mrs
+  ai_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/ai_domain.mrs
+  openai_domain:
+    type: file
+    behavior: domain
+    format: mrs
+    path: /etc/nikki/providers/openai_domain.mrs
