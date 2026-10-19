@@ -27,3 +27,12 @@ git clone https://github.com/eamonxg/luci-theme-aurora package/luci-theme-aurora
 git clone https://github.com/eamonxg/luci-app-aurora-config package/luci-app-aurora-config
 git clone https://github.com/timsaya/luci-app-bandix package/luci-app-bandix
 git clone https://github.com/timsaya/openwrt-bandix package/openwrt-bandix
+
+# ===== 第三方源：nikki（透明代理，取代 openclash）=====
+# nikki 官方编译接入方式：作为独立 feed 引入；包内依赖 mihomo（同 feed 提供 mihomo-meta/alpha）
+if ! grep -q "src-git nikki" feeds.conf.default 2>/dev/null; then
+  echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
+fi
+
+# ===== 第三方源：tailscale LuCI 界面（官方 luci feed 无此包）=====
+git clone --depth 1 https://github.com/asvow/luci-app-tailscale package/luci-app-tailscale
