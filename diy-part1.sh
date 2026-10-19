@@ -33,6 +33,3 @@ git clone https://github.com/timsaya/openwrt-bandix package/openwrt-bandix
 if ! grep -q "src-git nikki" feeds.conf.default 2>/dev/null; then
   echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
 fi
-
-# ===== 第三方源：tailscale LuCI 界面（官方 luci feed 无此包）=====
-git clone --depth 1 https://github.com/asvow/luci-app-tailscale package/luci-app-tailscale
